@@ -45,17 +45,17 @@ class Arb
         // todo get order id or something
         $trackId = uniqid($amount * time());
         $data = [
-            'id' => config('arb.tranportal_id'),
-            'password' => config('arb.tranportal_password'),
-            'action' => '1',
-            'trackId' => $trackId,
-            'amt' => (string) $amount,
-            'currencyCode' => config('arb.currency_code'),
-            'langid' => app()->getLocale(),
-            'responseURL' => $this->successUrl(),
-            'errorURL' => $this->failUrl(),
-            ...$this->generateUdfs(),
-        ] + $this->data();
+                'id' => config('arb.tranportal_id'),
+                'password' => config('arb.tranportal_password'),
+                'action' => '1',
+                'trackId' => $trackId,
+                'amt' => (string) $amount,
+                'currencyCode' => config('arb.currency_code'),
+                'langid' => app()->getLocale(),
+                'responseURL' => $this->successUrl(),
+                'errorURL' => $this->failUrl(),
+                ...$this->generateUdfs(),
+            ] + $this->data();
 
         if ($this->card !== null) {
             $data += $this->card()->toArray();
@@ -115,7 +115,7 @@ class Arb
     public function handlePaymentRequest(string $data): object
     {
         $configName = $this->card !== null
-            ? 'merchant_endpoint'
+            ? 'bank_hosted_endpoint'
             : 'bank_hosted_endpoint';
 
         $response = Http::withBody($data, 'application/json')
@@ -174,17 +174,17 @@ class Arb
     public function refund(string $transId, string $trackId): object
     {
         $data = [
-            'id' => config('arb.tranportal_id'),
-            'password' => config('arb.tranportal_password'),
-            'action' => '2',
-            'responseURL' => $this->successUrl(),
-            'errorURL' => $this->failUrl(),
-            'trackId' => $trackId,
-            'transId' => $transId,
-            'currencyCode' => config('arb.currency_code'),
-            'amt' => '1001',
-            'langid' => app()->getLocale(),
-        ] + $this->data();
+                'id' => config('arb.tranportal_id'),
+                'password' => config('arb.tranportal_password'),
+                'action' => '2',
+                'responseURL' => $this->successUrl(),
+                'errorURL' => $this->failUrl(),
+                'trackId' => $trackId,
+                'transId' => $transId,
+                'currencyCode' => config('arb.currency_code'),
+                'amt' => '1001',
+                'langid' => app()->getLocale(),
+            ] + $this->data();
 
         $data = $this->createRequestBody($this->wrapData($data));
 
@@ -324,16 +324,23 @@ class Arb
     {
         $maxChar = 255;
         $maxudfs = 5;
-        $str = base64_encode(json_encode($this->data()));
+        $str = base64_encode(json_encode($this->data));
         // split the string into chunks of 255 characters
         $chunks = str_split($str, $maxChar);
         if (count($chunks) > $maxudfs) {
+            $udfs = [];
+            $udfs["udf1"] = "";
+            $udfs["udf2"] = "";
+            $udfs["udf3"] = "";
+            $udfs["udf4"] = "";
+            $udfs["udf5"] = "";
+            return $udfs;
             throw new \Exception('Data is too large to be sent');
         }
 
         $udfs = [];
         foreach ($chunks as $key => $chunk) {
-            $udfs["udf".($key + 1)] = $chunk;
+            $udfs["udf" . ($key + 1)] = $chunk;
         }
         return $udfs;
     }
