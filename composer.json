@@ -1,5 +1,5 @@
 {
-    "name": "morsbollator/arb-payment-gateway",
+    "name": "egyjs/arb-payment-gateway",
     "description": "Laravel API for Al Rajhi Bank's payment gateway (ARB)",
     "keywords": [
         "egyjs",
