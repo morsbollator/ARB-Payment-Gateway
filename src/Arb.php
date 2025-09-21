@@ -115,7 +115,7 @@ class Arb
     public function handlePaymentRequest(string $data): object
     {
         $configName = $this->card !== null
-            ? 'bank_hosted_endpoint'
+            ? 'merchant_endpoint'
             : 'bank_hosted_endpoint';
 
         $response = Http::withBody($data, 'application/json')
